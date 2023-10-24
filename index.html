@@ -1,10 +1,21 @@
 <body>
     <div class="form">
         <textarea placeholder="Введите результаты..."></textarea>
-        <p>Заездов для зачёта</p>
-        <select id="select">
-        </select>
-        <button id="showScores">Подвести итоги</button>
+        <div class="flexSelects">
+            <div>
+                <p>Заездов для зачёта</p>
+                <select id="selectPass">
+                </select>
+            </div>
+            <button id="showScores">Подвести итоги</button>
+            <div>
+                <p>Топ-N скоростей</p>
+                <select id="selectTop">
+                    <option>Неважно</option>
+                </select>
+            </div>
+        </div>
+    </div>
     </div>
     <button id="excelSpeed"> Копировать результаты в Excel Формате (Скорости)</button>
     <div id="tableSpeed">
@@ -59,8 +70,28 @@
         flex-direction: row;
     }
 
+    .flexSelects {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .flexSelects>div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .flexSelects>div>select {
+        margin: 10px;
+        min-width: 40px;
+    }
+
+
     #raceQuantity,
-    #select {
+    #selectPass,
+    #selectTop {
         max-width: 100px;
         margin-bottom: 15px;
         background-color: var(--inputBG);
@@ -81,15 +112,17 @@
         margin: 20px;
     }
 
-    .form button {
+    #showScores {
         background-color: var(--inputBG);
         border: none;
         cursor: pointer;
         transition: 0.2s;
-        padding: 5px;
+        font-size: 20px;
+        padding: 10px;
+        margin: 25px;
     }
 
-    .form button:hover {
+    #showScores:hover {
         background-color: rgb(209, 205, 243);
     }
 
@@ -245,14 +278,20 @@
     }
 </style>
 <script>
-    let select = document.querySelector('#select')
+    let selectPass = document.querySelector('#selectPass')
+    let selectTop = document.querySelector('#selectTop')
     for (let i = 1; i <= 20; i++) {
         let option = document.createElement('option')
         option.textContent = String(i)
-        select.appendChild(option)
+        selectPass.appendChild(option)
+        if (i != 20) {
+            let option2 = document.createElement('option')
+            option2.textContent = String(i)
+            selectTop.appendChild(option2)
+        }
     }
     let everyone
-    function resultsScriptFunction(data, type, quantity = 0) {
+    function resultsScriptFunction(data, type, quantity = 0, topQuantity) {
         let firstRow = document.querySelector("#firstRow" + type)
 
         // Создаём первый ряд с количеством заездов
@@ -277,16 +316,16 @@
         // Выделяем список игроков, ранжированный по средней скорости 
         allPlayers = allPlayers.map((player, i) => {
             let averageSpeed = 0, rang = 'rang1'
+            let averageSpeedArray = []
             let aboveZero = 0
             data.map((race, index) => {
                 if (data[index][player]) {
                     averageSpeed += data[index][player][type.toLowerCase().replace(/percentage/ig, 'Percentage')]
+                    averageSpeedArray.push(data[index][player][type.toLowerCase().replace(/percentage/ig, 'Percentage')])
                     rang = data[index][player]["rang"]
                     aboveZero++
                 }
-                return averageSpeed
             })
-
             //сколько требуется доездов для зачёта
 
             if (aboveZero >= quantity) {
@@ -297,6 +336,9 @@
             // (включая нули) averageSpeed/data.length || (исключая нули) averageSpeed/aboveZero 
             //['sashavirtual', 450.06, 'rang7', 18, true]
             // aboveZero = data.length //раскомментировать если нужно по всем заездам турнира
+            if (!isNaN(topQuantity)) {
+                return [player, ((averageSpeedArray.slice().sort((a, b) => b - a).slice(0, topQuantity)).reduce((a, b) => a + b) / topQuantity).toFixed(2), rang, aboveZero, isCompeting, (averageSpeedArray.slice().sort((a, b) => b - a).slice(0, topQuantity))]
+            }
             return [player, (averageSpeed / aboveZero).toFixed(2), rang, aboveZero, isCompeting]
 
             //Сортировка по количеству доездов [1] - скорость
@@ -307,6 +349,7 @@
                 return a[1] - b[1]
             }
         })
+        console.log(allPlayers)
         for (let i = 0; i < allPlayers.length; i++) {
             let tableSpeed = document.querySelector('#table' + type)
             let tr = document.createElement('div')
@@ -328,7 +371,12 @@
             let speedsArr = []
             for (let j = 0; j <= data.length; j++) {
                 if (j == data.length) {
-                    let averageSpeed = (speedsArr.reduce((a, b) => a + b) / allPlayers[i][3]).toFixed(2)
+                    let averageSpeed
+                    if (!isNaN(topQuantity)) {
+                        averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2)
+                    } else {
+                        averageSpeed = (speedsArr.reduce((a, b) => a + b) / allPlayers[i][3]).toFixed(2)
+                    }
                     let averageElement = document.createElement('div')
                     tr.appendChild(averageElement)
                     averageElement.textContent = String(averageSpeed)
@@ -486,13 +534,15 @@
     function funcCall() {
         let textarea = document.querySelector("body > div.form > textarea").value.replace(/[\n\t\s]/ig, '')
         let data = JSON.parse(`[${textarea.trim()}]`)
-        let pass = +document.querySelector("#select").value.replace(/[\n\t\s]/ig, '')
-        resultsScriptFunction(data, 'Speed', pass)
-        resultsScriptFunction(data, 'Errors', pass)
-        resultsScriptFunction(data, 'ErrorPercentage', pass)
-        resultsScriptFunction(data, 'Time', pass)
+        let pass = +document.querySelector("#selectPass").value.replace(/[\n\t\s]/ig, '')
+        let topQuantity = +document.querySelector("#selectTop   ").value.replace(/[\n\t\s]/ig, '')
+        console.log(isNaN(topQuantity))
+        resultsScriptFunction(data, 'Speed', pass, topQuantity)
+        resultsScriptFunction(data, 'Errors', pass, topQuantity)
+        resultsScriptFunction(data, 'ErrorPercentage', pass, topQuantity)
+        resultsScriptFunction(data, 'Time', pass, topQuantity)
         funcCallButton.removeEventListener('click', funcCall)
     }
-    let funcCallButton = document.querySelector("body > div.form > button")
+    let funcCallButton = document.querySelector("#showScores")
     funcCallButton.addEventListener('click', funcCall)
 </script>
