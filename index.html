@@ -337,6 +337,10 @@
             //['sashavirtual', 450.06, 'rang7', 18, true]
             // aboveZero = data.length //раскомментировать если нужно по всем заездам турнира
             if (!isNaN(topQuantity)) {
+                if (type === 'Time' || type === 'Errors' || type === 'ErrorPercentage') {
+                    return [player, ((averageSpeedArray.slice().sort((a, b) => a - b).slice(0, topQuantity)).reduce((a, b) => a + b) / topQuantity).toFixed(2), rang, aboveZero, isCompeting, (averageSpeedArray.slice().sort((a, b) => a - b).slice(0, topQuantity))]
+
+                }
                 return [player, ((averageSpeedArray.slice().sort((a, b) => b - a).slice(0, topQuantity)).reduce((a, b) => a + b) / topQuantity).toFixed(2), rang, aboveZero, isCompeting, (averageSpeedArray.slice().sort((a, b) => b - a).slice(0, topQuantity))]
             }
             return [player, (averageSpeed / aboveZero).toFixed(2), rang, aboveZero, isCompeting]
@@ -349,7 +353,6 @@
                 return a[1] - b[1]
             }
         })
-        console.log(allPlayers)
         for (let i = 0; i < allPlayers.length; i++) {
             let tableSpeed = document.querySelector('#table' + type)
             let tr = document.createElement('div')
@@ -373,8 +376,18 @@
                 if (j == data.length) {
                     let averageSpeed
                     if (!isNaN(topQuantity)) {
+                        if (type === 'Speed') {
+                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2)
+                        } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2)
+                        }
                         averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2)
                     } else {
+                        if (type === 'Speed') {
+                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2)
+                        } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2)
+                        }
                         averageSpeed = (speedsArr.reduce((a, b) => a + b) / allPlayers[i][3]).toFixed(2)
                     }
                     let averageElement = document.createElement('div')
