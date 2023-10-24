@@ -4,11 +4,32 @@
         <p>Заездов для зачёта</p>
         <select id="select">
         </select>
-        <button>Подвести итоги</button>
+        <button id="showScores">Подвести итоги</button>
     </div>
-    <button id="excel"> Копировать результаты в Excel Формате</button>
+    <button id="excelSpeed"> Копировать результаты в Excel Формате (Скорости)</button>
     <div id="tableSpeed">
-        <div id="firstRow">
+        <div id="firstRowSpeed">
+            <div class="name">Игрок</div>
+        </div>
+    </div>
+    <br />
+    <button id="excelErrors"> Копировать результаты в Excel Формате (Ошибки)</button>
+    <div id="tableErrors">
+        <div id="firstRowErrors">
+            <div class="name">Игрок</div>
+        </div>
+    </div>
+    <br />
+    <button id="excelErrorPercentage"> Копировать результаты в Excel Формате (% ошибок)</button>
+    <div id="tableErrorPercentage">
+        <div id="firstRowErrorPercentage">
+            <div class="name">Игрок</div>
+        </div>
+    </div>
+    <br />
+    <button id="excelTime"> Копировать результаты в Excel Формате (Время)</button>
+    <div id="tableTime">
+        <div id="firstRowTime">
             <div class="name">Игрок</div>
         </div>
     </div>
@@ -30,9 +51,10 @@
         padding: 0;
     }
 
-    #tableSpeed {}
-
-    #firstRow {
+    #firstRowSpeed,
+    #firstRowErrors,
+    #firstRowTime,
+    #firstRowErrorPercentage {
         display: flex;
         flex-direction: row;
     }
@@ -46,7 +68,7 @@
 
     body {
         padding: 5vh 5vw;
-        background-color: rgb(212, 212, 212);
+        background-color: rgb(222, 222, 222);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -78,7 +100,10 @@
 
     }
 
-    #excel {
+    #excelSpeed,
+    #excelErrors,
+    #excelErrorPercentage,
+    #excelTime {
         padding: 5px;
         margin: 0 0 10px 0;
         transition: 0.2s;
@@ -87,7 +112,10 @@
         border-radius: 2px;
     }
 
-    #excel:hover {
+    #excelSpeed:hover,
+    #excelErrors:hover,
+    #excelErrorPercentage:hover,
+    #excelTime:hover {
         background-color: rgb(203, 255, 191);
     }
 
@@ -110,12 +138,12 @@
     }
 
     .column {
-        width: 30px;
+        width: 45px;
         padding: 2px;
         border: var(--border);
         margin: 0;
         text-align: center;
-        min-width: 30px;
+        min-width: 45px;
     }
 
     .average {
@@ -218,14 +246,14 @@
 </style>
 <script>
     let select = document.querySelector('#select')
-    for (let i = 0; i < 20; i++) {
+    for (let i = 1; i <= 20; i++) {
         let option = document.createElement('option')
-        option.textContent = String(i + 1)
+        option.textContent = String(i)
         select.appendChild(option)
     }
     let everyone
-    function resultsScriptFunction(data, quantity = 0) {
-        let firstRow = document.querySelector("#firstRow")
+    function resultsScriptFunction(data, type, quantity = 0) {
+        let firstRow = document.querySelector("#firstRow" + type)
 
         // Создаём первый ряд с количеством заездов
         for (let index = 0; index <= data.length; index++) {
@@ -252,7 +280,7 @@
             let aboveZero = 0
             data.map((race, index) => {
                 if (data[index][player]) {
-                    averageSpeed += data[index][player]["speed"]
+                    averageSpeed += data[index][player][type.toLowerCase().replace(/percentage/ig, 'Percentage')]
                     rang = data[index][player]["rang"]
                     aboveZero++
                 }
@@ -272,10 +300,15 @@
             return [player, (averageSpeed / aboveZero).toFixed(2), rang, aboveZero, isCompeting]
 
             //Сортировка по количеству доездов [1] - скорость
-        }).sort((a, b) => b[1] - a[1])
-
+        }).sort((a, b) => {
+            if (type === 'Speed') {
+                return b[1] - a[1]
+            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+                return a[1] - b[1]
+            }
+        })
         for (let i = 0; i < allPlayers.length; i++) {
-            let tableSpeed = document.querySelector('#tableSpeed')
+            let tableSpeed = document.querySelector('#table' + type)
             let tr = document.createElement('div')
             let rang = allPlayers[i][2]
             tr.classList.add('row', rang)
@@ -304,7 +337,7 @@
                 }
                 let raceSpeed
                 if (data[j][allPlayers[i][0]]) {
-                    raceSpeed = data[j][allPlayers[i][0]]["speed"]
+                    raceSpeed = data[j][allPlayers[i][0]][type.toLowerCase().replace(/percentage/ig, 'Percentage')]
                 } else {
                     raceSpeed = 0
                 }
@@ -317,80 +350,101 @@
         }
 
         //------------------------------------------------------------------------------//
+        if (type === 'Speed') {
 
-        // РЕЗУЛЬТАТЫ ДУЭЛЕЙ
-        let allDuels = {}
+            // РЕЗУЛЬТАТЫ ДУЭЛЕЙ
+            let allDuels = {}
 
-        // Создаётся обнулённый объект всех возможных дуэлей
-        for (let i = 0; i < everyone.length; i++) {
-            allDuels[everyone[i]] = {}
-            for (let j = 0; j < everyone.length; j++) {
-                if (i !== j) {
-                    allDuels[everyone[i]][everyone[j]] = [0, 0];
+            // Создаётся обнулённый объект всех возможных дуэлей
+            for (let i = 0; i < everyone.length; i++) {
+                allDuels[everyone[i]] = {}
+                for (let j = 0; j < everyone.length; j++) {
+                    if (i !== j) {
+                        allDuels[everyone[i]][everyone[j]] = [0, 0];
+                    }
                 }
             }
-        }
 
-        // Объект заполняется данными
-        for (let race = 0; race < data.length; race++) {
-            for (let plMain = 0; plMain < everyone.length; plMain++) {
-                let pl1 = everyone[plMain]
-                if (data[race][pl1]) {
-                    for (let plIterable = plMain + 1; plIterable < everyone.length; plIterable++) {
-                        if (plMain !== plIterable) {
-                            let pl2 = everyone[plIterable]
-                            if (data[race][pl2]) {
-                                let plMS = data[race][everyone[plMain]]["speed"]
-                                let plIS = data[race][everyone[plIterable]]["speed"]
-                                //player Main and Iterable speeds
-                                if (plMS > plIS) {
-                                    allDuels[pl1][pl2][0] += 1;
-                                    allDuels[pl2][pl1][1] += 1;
-                                } else if (plMS < plIS) {
-                                    allDuels[pl1][pl2][1] += 1;
-                                    allDuels[pl2][pl1][0] += 1;
+            // Объект заполняется данными
+            for (let race = 0; race < data.length; race++) {
+                for (let plMain = 0; plMain < everyone.length; plMain++) {
+                    let pl1 = everyone[plMain]
+                    if (data[race][pl1]) {
+                        for (let plIterable = plMain + 1; plIterable < everyone.length; plIterable++) {
+                            if (plMain !== plIterable) {
+                                let pl2 = everyone[plIterable]
+                                if (data[race][pl2]) {
+                                    let plMS = data[race][everyone[plMain]]["speed"]
+                                    let plIS = data[race][everyone[plIterable]]["speed"]
+                                    //player Main and Iterable speeds
+                                    if (plMS > plIS) {
+                                        allDuels[pl1][pl2][0] += 1;
+                                        allDuels[pl2][pl1][1] += 1;
+                                    } else if (plMS < plIS) {
+                                        allDuels[pl1][pl2][1] += 1;
+                                        allDuels[pl2][pl1][0] += 1;
 
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
-        // Данные переносятся на HTML, присваиваются CSS-классы
-        for (let i = 0; i < everyone.length; i++) {
-            let duels = document.querySelector('#duels')
-            let div = document.createElement('div')
-            div.classList.add('duelyant')
-            div.textContent = everyone[i] + '\n'
-            for (const duel in allDuels[everyone[i]]) {
-                let div2 = document.createElement('div')
-                div2.textContent = JSON.stringify(`${duel} (${allDuels[everyone[i]][duel]})`).replace(/[\{\}]/ig, '').replace(/,\"/ig, ",\n\"").replace(/\"/ig, "").replace(',', ':')
-                let res = div2.textContent.replace(/.+\(/ig, ' ').replace(/\)/ig, '').replace(/\s/ig, '').split(':').map(item => +item)
-                if (res[0] == 15) {
-                    div2.classList.add('flawlessV')
-                } else if (res[1] == 15) {
-                    div2.classList.add('flawlessL')
-                } else if (res[0] > res[1]) {
-                    div2.classList.add('won')
-                } else if (res[1] > res[0]) {
-                    div2.classList.add('lost')
+            // Данные переносятся на HTML, присваиваются CSS-классы
+            for (let i = 0; i < everyone.length; i++) {
+                let duels = document.querySelector('#duels')
+                let div = document.createElement('div')
+                div.classList.add('duelyant')
+                div.textContent = everyone[i] + '\n'
+                for (const duel in allDuels[everyone[i]]) {
+                    let div2 = document.createElement('div')
+                    div2.textContent = JSON.stringify(`${duel} (${allDuels[everyone[i]][duel]})`).replace(/[\{\}]/ig, '').replace(/,\"/ig, ",\n\"").replace(/\"/ig, "").replace(',', ':')
+                    let res = div2.textContent.replace(/.+\(/ig, ' ').replace(/\)/ig, '').replace(/\s/ig, '').split(':').map(item => +item)
+                    if (quantity > res[0] + res[1]) {
+                        div2.classList.add('hidden')
+                    } else if (res[1] == 0) {
+                        div2.classList.add('flawlessV')
+                    } else if (res[1] == 15) {
+                        div2.classList.add('flawlessL')
+                    } else if (res[0] > res[1]) {
+                        div2.classList.add('won')
+                    } else if (res[1] > res[0]) {
+                        div2.classList.add('lost')
+                    }
+                    if (res[0] === 0 && res[1] === 0) {
+                        div2.classList.add('hidden')
+                    }
+                    div.appendChild(div2)
                 }
-                if (res[0] === 0 && res[1] === 0) {
-                    div2.classList.add('hidden')
+                let count = 0
+                for (let i = 0; i < div.children.length; i++) {
+                    if (div.children[i].classList[0] == 'hidden') {
+                        count++
+                    }
                 }
-                div.appendChild(div2)
+                if (count !== div.children.length) {
+                    duels.appendChild(div)
+                }
             }
-            duels.appendChild(div)
-        }
 
+        }
     }
 
     // Копировать результаты в буфер обмена для Excel
     function copyToClipboard() {
-        let txtArr = []
-        let table = document.querySelector("#tableSpeed")
+        let id = event.target.id
+        let txtArr = [], table
+        if (id == 'excelSpeed') {
+            table = document.querySelector('#tableSpeed')
+        } else if (id == 'excelErrors') {
+            table = document.querySelector('#tableErrors')
+        } else if (id == 'excelTime') {
+            table = document.querySelector('#tableTime')
+        } else if (id == 'excelErrorPercentage') {
+            table = document.querySelector('#tableErrorPercentage')
+        }
         // let row = document.querySelectorAll(".row")
         // console.log(row,'row')
         // console.log(column,'column')
@@ -399,22 +453,45 @@
             txtArr.push(new Array)
 
             for (const cell of row.children) {
-                txtArr[i].push(cell.textContent)
+                if (row.length === 0 || row.classList[2] == 'competing' || row.id === 'firstRowSpeed' || row.id === 'firstRowErrors' || row.id === 'firstRowErrorPercentage' || row.id === 'firstRowTime') {
+                    txtArr[i].push(cell.textContent)
+                }
             }
-            if (i) txtArr[i][txtArr[i].length - 1] = txtArr[i][txtArr[i].length - 1].replace(/.+/ig, `=AVERAGEIF(D${i + 2}:R${i + 2};">0")`)
+            if (i) txtArr[i][txtArr[i].length - 1] = txtArr[i][txtArr[i].length - 1]
+            // .replace(/.+/ig, `=AVERAGEIF(D${i + 2}:R${i + 2};">0")`)
             txtArr[i] = txtArr[i].join('\t')
             i++
         }
+        txtArr = txtArr.filter(item => item)
+            .map((item, index) => {
+                let tempItem = item.split('\t')
+                let tempAverage = tempItem.pop()
+                tempItem = tempItem.join('\t').replace(/[\.]/ig, ',')
+                if (id === 'excelErrorPercentage' || id === 'excelErrors' || tempAverage === 'Средн.') {
+                    tempItem += `\t${tempAverage}`.replace(/[\.]/ig, ',').replace('Средн,', 'Средн.')
+                } else {
+                    tempItem += `\t=FLOOR.MATH(AVERAGEIF(D21:M21;">0")*100;1)/100`
+                }
+                return tempItem
+            })
         navigator.clipboard.writeText(txtArr.join('\n'))
     }
 
-    document.querySelector('#excel').addEventListener('click', copyToClipboard)
+    document.querySelector('#excelSpeed').addEventListener('click', copyToClipboard)
+    document.querySelector('#excelErrors').addEventListener('click', copyToClipboard)
+    document.querySelector('#excelTime').addEventListener('click', copyToClipboard)
+    document.querySelector('#excelErrorPercentage').addEventListener('click', copyToClipboard)
+
 
     function funcCall() {
         let textarea = document.querySelector("body > div.form > textarea").value.replace(/[\n\t\s]/ig, '')
         let data = JSON.parse(`[${textarea.trim()}]`)
         let pass = +document.querySelector("#select").value.replace(/[\n\t\s]/ig, '')
-        resultsScriptFunction(data, pass)
+        resultsScriptFunction(data, 'Speed', pass)
+        resultsScriptFunction(data, 'Errors', pass)
+        resultsScriptFunction(data, 'ErrorPercentage', pass)
+        resultsScriptFunction(data, 'Time', pass)
+        funcCallButton.removeEventListener('click', funcCall)
     }
     let funcCallButton = document.querySelector("body > div.form > button")
     funcCallButton.addEventListener('click', funcCall)
