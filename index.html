@@ -1,3 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Parser</title>
+</head>
+
+</html>
+
 <body>
     <div class="form">
         <textarea placeholder="Введите результаты..."></textarea>
@@ -19,28 +33,28 @@
     </div>
     <button id="excelSpeed"> Копировать результаты в Excel Формате (Скорости)</button>
     <div id="tableSpeed">
-        <div id="firstRowSpeed">
+        <div class='firstRow' id="firstRowSpeed">
             <div class="name">Игрок</div>
         </div>
     </div>
     <br />
     <button id="excelErrors"> Копировать результаты в Excel Формате (Ошибки)</button>
     <div id="tableErrors">
-        <div id="firstRowErrors">
+        <div class='firstRow' id="firstRowErrors">
             <div class="name">Игрок</div>
         </div>
     </div>
     <br />
     <button id="excelErrorPercentage"> Копировать результаты в Excel Формате (% ошибок)</button>
     <div id="tableErrorPercentage">
-        <div id="firstRowErrorPercentage">
+        <div class='firstRow' id="firstRowErrorPercentage">
             <div class="name">Игрок</div>
         </div>
     </div>
     <br />
     <button id="excelTime"> Копировать результаты в Excel Формате (Время)</button>
     <div id="tableTime">
-        <div id="firstRowTime">
+        <div class='firstRow' id="firstRowTime">
             <div class="name">Игрок</div>
         </div>
     </div>
@@ -54,20 +68,26 @@
     :root {
         --border: 1px solid rgb(103, 103, 103);
         --inputBG: rgb(237, 237, 237);
+        --font: 'Roboto', sans-serif;
     }
 
     * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        font-family: var(--font);
     }
 
-    #firstRowSpeed,
-    #firstRowErrors,
-    #firstRowTime,
-    #firstRowErrorPercentage {
+    .firstRow {
         display: flex;
         flex-direction: row;
+    }
+
+    .firstRow>div.column.average {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     .flexSelects {
@@ -152,12 +172,17 @@
         background-color: rgb(203, 255, 191);
     }
 
-    .name {
-        min-width: 150px;
-        width: 150px;
-        border: var(--border);
-        padding: 3px 0 3px 5px;
 
+    .name {
+        min-width: 180px;
+        width: 180px;
+        border: var(--border);
+        padding: 3px 0 3px 15px;
+        font-weight: 500;
+    }
+
+    .firstRow>.name {
+        padding: 3px 0;
     }
 
     .row {
@@ -172,7 +197,7 @@
 
     .column {
         width: 45px;
-        padding: 2px;
+        padding: 3px;
         border: var(--border);
         margin: 0;
         text-align: center;
@@ -180,11 +205,26 @@
     }
 
     .average {
-        min-width: 55px;
-        padding: 2px;
+        min-width: 90px;
+        max-width: 135px;
+        padding: 3px;
         border: var(--border);
         margin: 0;
         text-align: center;
+    }
+
+    .firstRow {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .firstRow>div,
+    .firstRow>div.name {
+        text-align: center;
+        padding: 20px 0;
+        max-height: 60px;
+        font-weight: 500;
     }
 
     .rang1 {
@@ -301,7 +341,15 @@
             div.classList.add("column")
 
             if (index === data.length) {
-                div.textContent = "Средн."
+
+                let appended1 = document.createElement('div')
+                let appended2 = document.createElement('div')
+                appended1.textContent = 'Средн.'
+                div.appendChild(appended1);
+                if (!isNaN(topQuantity)) {
+                    appended2.textContent = `(топ-${topQuantity})`
+                    div.appendChild(appended2);
+                }
                 div.classList.add('average')
                 continue
             } else {
@@ -338,6 +386,10 @@
             // aboveZero = data.length //раскомментировать если нужно по всем заездам турнира
             if (!isNaN(topQuantity)) {
                 if (type === 'Time' || type === 'Errors' || type === 'ErrorPercentage') {
+                    if (topQuantity > aboveZero) {
+                        return [player, ((averageSpeedArray.slice().sort((a, b) => a - b).slice(0, aboveZero)).reduce((a, b) => a + b) / aboveZero).toFixed(2), rang, aboveZero, isCompeting, (averageSpeedArray.slice().sort((a, b) => a - b).slice(0, aboveZero))]
+                    }
+
                     return [player, ((averageSpeedArray.slice().sort((a, b) => a - b).slice(0, topQuantity)).reduce((a, b) => a + b) / topQuantity).toFixed(2), rang, aboveZero, isCompeting, (averageSpeedArray.slice().sort((a, b) => a - b).slice(0, topQuantity))]
 
                 }
@@ -376,16 +428,25 @@
                 if (j == data.length) {
                     let averageSpeed
                     if (!isNaN(topQuantity)) {
-                        if (type === 'Speed') {
-                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2)
-                        } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
-                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2)
+                        if (topQuantity > allPlayers[i][3]) {
+                            console.log(type, topQuantity, allPlayers[i][5])
+                            if (type === 'Speed') {
+                                averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][3]).toFixed(2) * 1
+                            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+                                averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][3]).toFixed(2) * 1
+                            }
+                        } else {
+                            if (type === 'Speed') {
+                                averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2) * 1
+                            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+                                averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2) * 1
+                            }
                         }
                     } else {
                         if (type === 'Speed') {
-                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][5].length).toFixed(2)
+                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][5].length).toFixed(2) * 1
                         } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
-                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][5].length).toFixed(2)
+                            averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][5].length).toFixed(2) * 1
                         }
                     }
                     let averageElement = document.createElement('div')
