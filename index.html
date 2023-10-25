@@ -31,33 +31,36 @@
         </div>
     </div>
     </div>
-    <button id="excelSpeed"> Копировать результаты в Excel Формате (Скорости)</button>
-    <div id="tableSpeed">
-        <div class='firstRow' id="firstRowSpeed">
-            <div class="name">Игрок</div>
+    <div id="hiddenBeforeStart">
+        <button id="excelSpeed"> Копировать результаты в Excel Формате (Скорости)</button>
+        <div id="tableSpeed">
+            <div class='firstRow' id="firstRowSpeed">
+                <div class="name">Игрок</div>
+            </div>
+        </div>
+        <br />
+        <button id="excelErrors"> Копировать результаты в Excel Формате (Ошибки)</button>
+        <div id="tableErrors">
+            <div class='firstRow' id="firstRowErrors">
+                <div class="name">Игрок</div>
+            </div>
+        </div>
+        <br />
+        <button id="excelErrorPercentage"> Копировать результаты в Excel Формате (% ошибок)</button>
+        <div id="tableErrorPercentage">
+            <div class='firstRow' id="firstRowErrorPercentage">
+                <div class="name">Игрок</div>
+            </div>
+        </div>
+        <br />
+        <button id="excelTime"> Копировать результаты в Excel Формате (Время)</button>
+        <div id="tableTime">
+            <div class='firstRow' id="firstRowTime">
+                <div class="name">Игрок</div>
+            </div>
         </div>
     </div>
-    <br />
-    <button id="excelErrors"> Копировать результаты в Excel Формате (Ошибки)</button>
-    <div id="tableErrors">
-        <div class='firstRow' id="firstRowErrors">
-            <div class="name">Игрок</div>
-        </div>
-    </div>
-    <br />
-    <button id="excelErrorPercentage"> Копировать результаты в Excel Формате (% ошибок)</button>
-    <div id="tableErrorPercentage">
-        <div class='firstRow' id="firstRowErrorPercentage">
-            <div class="name">Игрок</div>
-        </div>
-    </div>
-    <br />
-    <button id="excelTime"> Копировать результаты в Excel Формате (Время)</button>
-    <div id="tableTime">
-        <div class='firstRow' id="firstRowTime">
-            <div class="name">Игрок</div>
-        </div>
-    </div>
+
     <p id="duels">
 
     </p>
@@ -76,6 +79,13 @@
         margin: 0;
         padding: 0;
         font-family: var(--font);
+    }
+
+    #hiddenBeforeStart {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     .firstRow {
@@ -614,6 +624,7 @@
         resultsScriptFunction(data, 'ErrorPercentage', pass, topQuantity)
         resultsScriptFunction(data, 'Time', pass, topQuantity)
         funcCallButton.removeEventListener('click', funcCall)
+        document.getElementById('hiddenBeforeStart').setAttribute('style', 'display:flex;')
     }
     let funcCallButton = document.querySelector("#showScores")
     funcCallButton.addEventListener('click', funcCall)
