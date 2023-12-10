@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Results
+// @name         RaceResults
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      1
 // @description  try to take over the world!
-// @author       You
+// @author       sashavirtual
 // @match        http*://klavogonki.ru/g/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=klavogonki.ru
 // @grant        none
