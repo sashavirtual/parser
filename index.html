@@ -514,6 +514,11 @@
                                         allDuels[pl1][pl2][1] += 1;
                                         allDuels[pl2][pl1][0] += 1;
 
+                                    } else if (plMS === plIS) {
+                                        allDuels[pl1][pl2][1] += 0.5;
+                                        allDuels[pl2][pl1][0] += 0.5;
+                                        allDuels[pl1][pl2][0] += 0.5;
+                                        allDuels[pl2][pl1][1] += 0.5;
                                     }
                                 }
                             }
@@ -530,9 +535,9 @@
                 div.textContent = everyone[i] + '\n'
                 for (const duel in allDuels[everyone[i]]) {
                     let div2 = document.createElement('div')
-                    div2.textContent = JSON.stringify(`${duel} (${allDuels[everyone[i]][duel]})`).replace(/[\{\}]/ig, '').replace(/,\"/ig, ",\n\"").replace(/\"/ig, "").replace(',', ':')
+                    div2.textContent = JSON.stringify(`${duel} (${allDuels[everyone[i]][duel]})`).replace(/[\{\}]/ig, '').replace(/,\"/ig, ",\n\"").replace(/\"/ig, "").replace(',', ' : ')
                     let res = div2.textContent.replace(/.+\(/ig, ' ').replace(/\)/ig, '').replace(/\s/ig, '').split(':').map(item => +item)
-                    if (quantity > res[0] + res[1]) {
+                    if (quantity > res[0] + res[1] + 1) {
                         div2.classList.add('hidden')
                     } else if (res[1] == 0) {
                         div2.classList.add('flawlessV')
@@ -615,7 +620,7 @@
 
     function funcCall() {
         let textarea = document.querySelector("body > div.form > textarea").value.replace(/[\n\t\s]/ig, '')
-        let data = JSON.parse(`[${textarea.trim()}]`)
+        let data = JSON.parse(`[${textarea.trim().replace(/\,$/, '')}]`)
         let pass = +document.querySelector("#selectPass").value.replace(/[\n\t\s]/ig, '')
         let topQuantity = +document.querySelector("#selectTop   ").value.replace(/[\n\t\s]/ig, '')
         console.log(isNaN(topQuantity))
