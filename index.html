@@ -32,28 +32,48 @@
     </div>
     </div>
     <div id="hiddenBeforeStart">
-        <button id="excelSpeed"> Копировать результаты в Excel Формате (Скорости)</button>
+        <div>
+            <h3>Скорости</h3>
+            Копировать в формате таблиц...
+            <button id="excelSpeed"> полностью</button>
+            <button id="excelSpeed2"> только никнеймы и результаты</button>
+        </div>
         <div id="tableSpeed">
             <div class='firstRow' id="firstRowSpeed">
                 <div class="name">Игрок</div>
             </div>
         </div>
         <br />
-        <button id="excelErrors"> Копировать результаты в Excel Формате (Ошибки)</button>
+        <div>
+            <h3>Ошибки</h3>
+            Копировать в формате таблиц...
+            <button id="excelErrors"> полностью </button>
+            <button id="excelErrors2"> только никнеймы и результаты</button>
+        </div>
         <div id="tableErrors">
             <div class='firstRow' id="firstRowErrors">
                 <div class="name">Игрок</div>
             </div>
         </div>
         <br />
-        <button id="excelErrorPercentage"> Копировать результаты в Excel Формате (% ошибок)</button>
+        <div>
+            <h3>% ошибок</h3>
+            Копировать в формате таблиц...
+            <button id="excelErrorPercentage"> полностью</button>
+            <button id="excelErrorPercentage2"> только никнеймы и результаты</button>
+        </div>
         <div id="tableErrorPercentage">
             <div class='firstRow' id="firstRowErrorPercentage">
                 <div class="name">Игрок</div>
             </div>
         </div>
         <br />
-        <button id="excelTime"> Копировать результаты в Excel Формате (Время)</button>
+        <div>
+            <h3>Время</h3>
+            Копировать в формате таблиц...
+            <button id="excelTime"> полностью</button>
+            <button id="excelTime2"> только никнеймы и результаты</button>
+        </div>
         <div id="tableTime">
             <div class='firstRow' id="firstRowTime">
                 <div class="name">Игрок</div>
@@ -166,7 +186,11 @@
     #excelSpeed,
     #excelErrors,
     #excelErrorPercentage,
-    #excelTime {
+    #excelTime,
+    #excelSpeed2,
+    #excelErrors2,
+    #excelErrorPercentage2,
+    #excelTime2 {
         padding: 5px;
         margin: 0 0 10px 0;
         transition: 0.2s;
@@ -178,7 +202,11 @@
     #excelSpeed:hover,
     #excelErrors:hover,
     #excelErrorPercentage:hover,
-    #excelTime:hover {
+    #excelTime:hover,
+    #excelSpeed2:hover,
+    #excelErrors2:hover,
+    #excelErrorPercentage2:hover,
+    #excelTime2:hover {
         background-color: rgb(203, 255, 191);
     }
 
@@ -611,12 +639,54 @@
             })
         navigator.clipboard.writeText(txtArr.join('\n'))
     }
+    function copyToClipboard2() {
+        let id = event.target.id
+        let txtArr = [], table
+        if (id == 'excelSpeed2') {
+            table = document.querySelector('#tableSpeed')
+        } else if (id == 'excelErrors2') {
+            table = document.querySelector('#tableErrors')
+        } else if (id == 'excelTime2') {
+            table = document.querySelector('#tableTime')
+        } else if (id == 'excelErrorPercentage2') {
+            table = document.querySelector('#tableErrorPercentage')
+        }
+        // let row = document.querySelectorAll(".row")
+        // console.log(row,'row')
+        // console.log(column,'column')
+        let i = 0
+        for (const row of table.children) {
+            txtArr.push(new Array)
 
+            for (const cell of row.children) {
+                if (row.length === 0 || row.classList[2] == 'competing' || row.id === 'firstRowSpeed' || row.id === 'firstRowErrors' || row.id === 'firstRowErrorPercentage' || row.id === 'firstRowTime') {
+                    txtArr[i].push(cell.textContent)
+                }
+            }
+            if (i) txtArr[i][txtArr[i].length - 1] = txtArr[i][txtArr[i].length - 1]
+            // .replace(/.+/ig, `=AVERAGEIF(D${i + 2}:R${i + 2};">0")`)
+            txtArr[i] = txtArr[i].join('\t')
+            i++
+        }
+        console.log(txtArr, "txtArr")
+        txtArr = txtArr.slice(1, txtArr.length).filter(item => item)
+            .map((item, index) => {
+                let tempItem = item.split('\t').slice(0, txtArr.length - 2)
+                let tempAverage = tempItem.pop()
+                tempItem = tempItem.join('\t').replace(/[\.]/ig, ',')
+                return tempItem
+            })
+        navigator.clipboard.writeText(txtArr.join('\n'))
+    }
     document.querySelector('#excelSpeed').addEventListener('click', copyToClipboard)
     document.querySelector('#excelErrors').addEventListener('click', copyToClipboard)
     document.querySelector('#excelTime').addEventListener('click', copyToClipboard)
     document.querySelector('#excelErrorPercentage').addEventListener('click', copyToClipboard)
 
+    document.querySelector('#excelSpeed2').addEventListener('click', copyToClipboard2)
+    document.querySelector('#excelErrors2').addEventListener('click', copyToClipboard2)
+    document.querySelector('#excelTime2').addEventListener('click', copyToClipboard2)
+    document.querySelector('#excelErrorPercentage2').addEventListener('click', copyToClipboard2)
 
     function funcCall() {
         let textarea = document.querySelector("body > div.form > textarea").value.replace(/[\n\t\s]/ig, '')
