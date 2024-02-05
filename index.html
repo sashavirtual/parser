@@ -668,10 +668,11 @@
             txtArr[i] = txtArr[i].join('\t')
             i++
         }
-        console.log(txtArr, "txtArr")
-        txtArr = txtArr.slice(1, txtArr.length).filter(item => item)
+        txtArr = txtArr
+            .slice(1, txtArr.length)
+            .filter(item => item)
             .map((item, index) => {
-                let tempItem = item.split('\t').slice(0, txtArr.length - 2)
+                let tempItem = item.split('\t').slice(0, item.length - 1)
                 let tempAverage = tempItem.pop()
                 tempItem = tempItem.join('\t').replace(/[\.]/ig, ',')
                 return tempItem
