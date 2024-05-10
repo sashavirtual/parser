@@ -22,10 +22,16 @@ function print(){
 let playerObj={}
 for(let index=0;index<players.children.length;index++){
     let speed=document.querySelector(`#stats${index} > div:nth-child(2) > span.bitmore > span`)
+    let place=document.querySelector(`#rating${index} > div:nth-child(1) > ins.place`)
     if(speed&&document.querySelector(`#car${index} > tbody > tr > td.name`).textContent!=='Гость'){
     let player=players.children[index]
     let time='05:00'
-    let name=document.querySelector(`#car${index} > tbody > tr > td.name > div > table > tbody > tr:nth-child(2) > td > div > a`).textContent
+        let name=''
+        try{
+    name=document.querySelector(`#car${index} > tbody > tr > td.name > div > table > tbody > tr:nth-child(2) > td > div > a`).textContent
+        }catch(e){
+            continue
+        }
     if(document.querySelector(`#stats${index} > div:nth-child(1) > span > span`)){
     time=document.querySelector(`#stats${index} > div:nth-child(1) > span > span`).textContent
     }
@@ -38,6 +44,7 @@ for(let index=0;index<players.children.length;index++){
     timeMS=timeMS[timeMS.length-1]
     playerObj[name]={}
     playerObj[name].speed=+speed.textContent
+    playerObj[name].place=+place.textContent.match(/[\d]+/)
         time = Number(Number(timeArr[0])*60)+Number(timeArr[1])+'.'+timeMS
     playerObj[name].time=+time
 playerObj[name].errors=+document.querySelector(`#stats${index} > div:nth-child(3) > span:nth-child(1) > span`).textContent
@@ -47,6 +54,7 @@ playerObj[name].errorPercentage=+document.querySelector(`#stats${index} > div:nt
     }
 
 }
+    console.log('ok here')
     resultsParagraph.textContent=JSON.stringify(playerObj).replace(/\},/ig,'},\n')
 navigator.clipboard.writeText(JSON.stringify(playerObj).replace(/\},/ig,'},\n')+',\n')
 }
