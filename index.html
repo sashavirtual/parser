@@ -79,6 +79,18 @@
                 <div class="name">Игрок</div>
             </div>
         </div>
+        <br />
+        <div>
+            <h3>Места</h3>
+            Копировать в формате таблиц...
+            <button id="excelPlace"> полностью</button>
+            <button id="excelPlace2"> только никнеймы и результаты</button>
+        </div>
+        <div id="tablePlace">
+            <div class='firstRow' id="firstRowPlace">
+                <div class="name">Игрок</div>
+            </div>
+        </div>
     </div>
 
     <p id="duels">
@@ -187,10 +199,12 @@
     #excelErrors,
     #excelErrorPercentage,
     #excelTime,
+    #excelPlace,
     #excelSpeed2,
     #excelErrors2,
     #excelErrorPercentage2,
-    #excelTime2 {
+    #excelTime2,
+    #excelPlace2 {
         padding: 5px;
         margin: 0 0 10px 0;
         transition: 0.2s;
@@ -202,11 +216,13 @@
     #excelSpeed:hover,
     #excelErrors:hover,
     #excelErrorPercentage:hover,
+    #excelPlace:hover,
     #excelTime:hover,
     #excelSpeed2:hover,
     #excelErrors2:hover,
     #excelErrorPercentage2:hover,
-    #excelTime2:hover {
+    #excelTime2:hover,
+    #excelPlace2:hover {
         background-color: rgb(203, 255, 191);
     }
 
@@ -423,7 +439,7 @@
             //['sashavirtual', 450.06, 'rang7', 18, true]
             // aboveZero = data.length //раскомментировать если нужно по всем заездам турнира
             if (!isNaN(topQuantity)) {
-                if (type === 'Time' || type === 'Errors' || type === 'ErrorPercentage') {
+                if (type === 'Time' || type === 'Errors' || type === 'ErrorPercentage' || type === 'Place') {
                     if (topQuantity > aboveZero) {
                         return [player, ((averageSpeedArray.slice().sort((a, b) => a - b).slice(0, aboveZero)).reduce((a, b) => a + b) / aboveZero).toFixed(2), rang, aboveZero, isCompeting, (averageSpeedArray.slice().sort((a, b) => a - b).slice(0, aboveZero))]
                     }
@@ -439,7 +455,7 @@
         }).sort((a, b) => {
             if (type === 'Speed') {
                 return b[1] - a[1]
-            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage" || type === 'Place') {
                 return a[1] - b[1]
             }
         })
@@ -470,20 +486,20 @@
                             console.log(type, topQuantity, allPlayers[i][5])
                             if (type === 'Speed') {
                                 averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][3]).toFixed(2) * 1
-                            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+                            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage" || type === 'Place') {
                                 averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][3]).toFixed(2) * 1
                             }
                         } else {
                             if (type === 'Speed') {
                                 averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2) * 1
-                            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+                            } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage" || type === 'Place') {
                                 averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / topQuantity).toFixed(2) * 1
                             }
                         }
                     } else {
                         if (type === 'Speed') {
                             averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][5].length).toFixed(2) * 1
-                        } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage") {
+                        } else if (type === 'Errors' || type === "Time" || type === "ErrorPercentage" || type === 'Place') {
                             averageSpeed = (allPlayers[i][5].reduce((a, b) => a + b) / allPlayers[i][5].length).toFixed(2) * 1
                         }
                     }
@@ -607,6 +623,8 @@
             table = document.querySelector('#tableTime')
         } else if (id == 'excelErrorPercentage') {
             table = document.querySelector('#tableErrorPercentage')
+        } else if (id == 'excelPlace') {
+            table = document.querySelector('#tablePlace')
         }
         // let row = document.querySelectorAll(".row")
         // console.log(row,'row')
@@ -616,7 +634,7 @@
             txtArr.push(new Array)
 
             for (const cell of row.children) {
-                if (row.length === 0 || row.classList[2] == 'competing' || row.id === 'firstRowSpeed' || row.id === 'firstRowErrors' || row.id === 'firstRowErrorPercentage' || row.id === 'firstRowTime') {
+                if (row.length === 0 || row.classList[2] == 'competing' || row.id === 'firstRowSpeed' || row.id === 'firstRowErrors' || row.id === 'firstRowErrorPercentage' || row.id === 'firstRowTime' || row.id === 'firstRowPlace') {
                     txtArr[i].push(cell.textContent)
                 }
             }
@@ -630,7 +648,7 @@
                 let tempItem = item.split('\t')
                 let tempAverage = tempItem.pop()
                 tempItem = tempItem.join('\t').replace(/[\.]/ig, ',')
-                if (id === 'excelErrorPercentage' || id === 'excelErrors' || tempAverage === 'Средн.') {
+                if (id === 'excelErrorPercentage' || id === 'excelErrors' || tempAverage === 'Средн.' || id === 'excelPlace') {
                     tempItem += `\t${tempAverage}`.replace(/[\.]/ig, ',').replace('Средн,', 'Средн.')
                 } else {
                     tempItem += `\t=FLOOR.MATH(AVERAGEIF(D21:M21;">0")*100;1)/100`
@@ -650,6 +668,8 @@
             table = document.querySelector('#tableTime')
         } else if (id == 'excelErrorPercentage2') {
             table = document.querySelector('#tableErrorPercentage')
+        } else if (id == 'excelPlace2') {
+            table = document.querySelector('#tablePlace')
         }
         // let row = document.querySelectorAll(".row")
         // console.log(row,'row')
@@ -659,7 +679,7 @@
             txtArr.push(new Array)
 
             for (const cell of row.children) {
-                if (row.length === 0 || row.classList[2] == 'competing' || row.id === 'firstRowSpeed' || row.id === 'firstRowErrors' || row.id === 'firstRowErrorPercentage' || row.id === 'firstRowTime') {
+                if (row.length === 0 || row.classList[2] == 'competing' || row.id === 'firstRowSpeed' || row.id === 'firstRowErrors' || row.id === 'firstRowErrorPercentage' || row.id === 'firstRowTime' || row.id === 'firstRowPlace') {
                     txtArr[i].push(cell.textContent)
                 }
             }
@@ -683,11 +703,13 @@
     document.querySelector('#excelErrors').addEventListener('click', copyToClipboard)
     document.querySelector('#excelTime').addEventListener('click', copyToClipboard)
     document.querySelector('#excelErrorPercentage').addEventListener('click', copyToClipboard)
+    document.querySelector('#excelPlace').addEventListener('click', copyToClipboard)
 
     document.querySelector('#excelSpeed2').addEventListener('click', copyToClipboard2)
     document.querySelector('#excelErrors2').addEventListener('click', copyToClipboard2)
     document.querySelector('#excelTime2').addEventListener('click', copyToClipboard2)
     document.querySelector('#excelErrorPercentage2').addEventListener('click', copyToClipboard2)
+    document.querySelector('#excelPlace2').addEventListener('click', copyToClipboard2)
 
     function funcCall() {
         let textarea = document.querySelector("body > div.form > textarea").value.replace(/[\n\t\s]/ig, '')
@@ -699,6 +721,8 @@
         resultsScriptFunction(data, 'Errors', pass, topQuantity)
         resultsScriptFunction(data, 'ErrorPercentage', pass, topQuantity)
         resultsScriptFunction(data, 'Time', pass, topQuantity)
+        resultsScriptFunction(data, 'Place', pass, topQuantity)
+
         funcCallButton.removeEventListener('click', funcCall)
         document.getElementById('hiddenBeforeStart').setAttribute('style', 'display:flex;')
     }
